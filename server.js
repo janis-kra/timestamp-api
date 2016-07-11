@@ -1,8 +1,21 @@
 const express = require('express');
 const app = express();
 
+const naturalRegexp = /^[A-z]*\s([1-9]|[12][1-9]|30|31),\s(19|20)\d\d$/;
+const monthRegexp = /^[A-z]*/;
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
 var isNaturalLanguageDate = function (candidate) {
-    return false;
+    var is;
+    if (naturalRegexp.test(candidate)) {
+        const month = monthRegexp.exec(candidate)[0];
+        is = months.some(function (m) {
+           return m === month; 
+        });
+    } else {
+        is = false;
+    }
+    return is;
 }
 
 var isUnixDate = function (candidate) {
