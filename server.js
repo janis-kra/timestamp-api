@@ -4,6 +4,7 @@ const app = express();
 const naturalRegexp = /^[A-z]*\s([1-9]|[12][1-9]|30|31),\s(19|20)\d\d$/;
 const monthRegexp = /^[A-z]*/;
 const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const unixRegexp = /^\d+(.\d\d)?$/;
 
 var isNaturalLanguageDate = function (candidate) {
     var is;
@@ -19,15 +20,16 @@ var isNaturalLanguageDate = function (candidate) {
 }
 
 var isUnixDate = function (candidate) {
-    return false;
+    return unixRegexp.test(candidate);
 }
 
-var createNaturalDate = function (date) {
-    return new Date(date);
+var createNaturalDate = function (ms) {
+    var date = new Date(ms);
+    return months[date.getMonth()] + ' ' + date.getDate() + ', ' + date.getFullYear();
 }
 
 var createUnixTimestamp = function (date) {
-    return new Date(date);
+    return (new Date(date).getTime() / 1000) | 0;
 }
 
 app.get('/', function(req, res) {
@@ -42,7 +44,7 @@ app.get('/:timestamp', function (req, res) {
         unixDate = createUnixTimestamp(t);
     } else if (isUnixDate(t)) {
         unixDate = t;
-        naturalDate = createNaturalDate(t);
+        naturalDate = createNaturalDate(t * 1000); // because unix timestamp is in seconds, we need milliseconds
     } else {
         unixDate = naturalDate = null;
     }
